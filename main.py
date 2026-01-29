@@ -152,3 +152,42 @@ for k in k_range:
         cluster_labels = kmeans_temp.fit_predict(X_scaled)
         silhouette_avg = silhouette_score(X_scaled, cluster_labels)
         silhouette_scores_random.append(silhouette_avg)
+
+# Применение метода PCA
+pca = PCA(n_components=n_clusters)  # Количество компонент равно количеству уникальных классов
+X_pca = pca.fit_transform(X_scaled)
+
+print("Результаты PCA:")
+print(f"Объясненная дисперсия для каждой компоненты: {pca.explained_variance_ratio_}")
+print(f"Суммарная объясненная дисперсия: {sum(pca.explained_variance_ratio_):.4f}")
+print(f"Собственные значения: {pca.explained_variance_}")
+print("=" * 50)
+
+# Создание модели KMeans с инициализацией из компонент PCA
+start_time = time.time()
+
+kmeans_pca = KMeans(
+    init=pca.components_[:n_clusters],  # Используем компоненты PCA как начальные центры
+    n_clusters=n_clusters,
+    n_init=1,  # Только одна инициализация, т.к. мы задали центры вручную
+    random_state=42
+)
+
+# Обучение модели
+kmeans_pca.fit(X_scaled)
+
+# Время работы
+kmeans_pca_time = time.time() - start_time
+
+# Получение меток кластеров
+labels_pca = kmeans_pca.labels_
+
+# Вычисление метрик
+ari_pca = adjusted_rand_score(digits.target, labels_pca)
+ami_pca = adjusted_mutual_info_score(digits.target, labels_pca)
+
+print("Результаты для KMeans с init из PCA компонент:")
+print(f"Время работы: {kmeans_pca_time:.4f} секунд")
+print(f"Adjusted Rand Index (ARI): {ari_pca:.4f}")
+print(f"Adjusted Mutual Information (AMI): {ami_pca:.4f}")
+print("=" * 50)
