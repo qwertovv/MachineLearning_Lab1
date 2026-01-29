@@ -229,3 +229,65 @@ print("- Random инициализация может давать разные 
 print("- PCA компоненты как инициализация могут быть полезны, если главные компоненты")
 print("  хорошо разделяют данные, но не всегда обеспечивают оптимальную кластеризацию.")
 print("=" * 50)
+
+
+# Применение PCA для визуализации в 2D
+pca_2d = PCA(n_components=2)
+X_2d = pca_2d.fit_transform(X_scaled)
+
+# Используем модель с k-means++ для визуализации
+kmeans_visual = KMeans(
+    init='k-means++',
+    n_clusters=n_clusters,
+    n_init=10,
+    random_state=42
+)
+kmeans_visual.fit(X_2d)  # Обучаем на 2D данных для визуализации
+labels_visual = kmeans_visual.labels_
+centers_visual = kmeans_visual.cluster_centers_
+
+# Создание meshgrid для границ кластеров
+h = 0.02  # шаг сетки
+x_min, x_max = X_2d[:, 0].min() - 1, X_2d[:, 0].max() + 1
+y_min, y_max = X_2d[:, 1].min() - 1, X_2d[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                     np.arange(y_min, y_max, h))
+
+# Прогнозируем кластеры для каждой точки сетки
+Z = kmeans_visual.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+# Визуализация
+plt.figure(figsize=(12, 10))
+
+# Границы кластеров
+plt.contourf(xx, yy, Z, alpha=0.1, cmap=plt.cm.tab20)
+
+# Точки данных
+scatter = plt.scatter(X_2d[:, 0], X_2d[:, 1], 
+                     c=labels_visual, 
+                     cmap=plt.cm.tab20,
+                     edgecolor='k',
+                     s=50,
+                     alpha=0.7)
+
+# Центры кластеров
+plt.scatter(centers_visual[:, 0], centers_visual[:, 1],
+            c='red', marker='X', s=200, 
+            edgecolor='black', linewidth=2,
+            label='Центры кластеров')
+
+plt.xlabel('Первая главная компонента')
+plt.ylabel('Вторая главная компонента')
+plt.title('Визуализация кластеризации KMeans (k-means++) на 2D плоскости')
+plt.colorbar(scatter, label='Кластер')
+plt.legend()
+plt.grid(True, alpha=0.3)
+
+plt.show()
+
+print("Визуализация выполнена:")
+print("- Данные спроецированы на 2 главные компоненты")
+print("- Показаны границы кластеров (разные цвета областей)")
+print("- Красными крестами отмечены центры кластеров")
+print("=" * 50)
