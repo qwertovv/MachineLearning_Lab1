@@ -33,3 +33,32 @@ n_clusters = len(unique_targets)
 print("Количество уникальных значений в target:", n_clusters)
 print("Уникальные значения:", unique_targets)
 print("=" * 50)
+
+# Создание модели KMeans с инициализацией k-means++
+start_time = time.time()
+
+kmeans_pp = KMeans(
+    init='k-means++',  # Умная инициализация центроидов
+    n_clusters=n_clusters,  # Количество кластеров равно количеству классов
+    n_init=10,  # Количество запусков с разными начальными центрами
+    random_state=42  # Для воспроизводимости
+)
+
+# Обучение модели
+kmeans_pp.fit(X_scaled)
+
+# Время работы
+kmeans_pp_time = time.time() - start_time
+
+# Получение меток кластеров
+labels_pp = kmeans_pp.labels_
+
+# Вычисление метрик
+ari_pp = adjusted_rand_score(digits.target, labels_pp)
+ami_pp = adjusted_mutual_info_score(digits.target, labels_pp)
+
+print("Результаты для KMeans с init='k-means++':")
+print(f"Время работы: {kmeans_pp_time:.4f} секунд")
+print(f"Adjusted Rand Index (ARI): {ari_pp:.4f}")
+print(f"Adjusted Mutual Information (AMI): {ami_pp:.4f}")
+print("=" * 50)
