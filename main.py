@@ -191,3 +191,41 @@ print(f"Время работы: {kmeans_pca_time:.4f} секунд")
 print(f"Adjusted Rand Index (ARI): {ari_pca:.4f}")
 print(f"Adjusted Mutual Information (AMI): {ami_pca:.4f}")
 print("=" * 50)
+
+
+# Создание таблицы сравнения
+comparison_df = pd.DataFrame({
+    'Метод инициализации': ['k-means++', 'random', 'PCA компоненты'],
+    'Время (сек)': [kmeans_pp_time, kmeans_random_time, kmeans_pca_time],
+    'ARI': [ari_pp, ari_random, ari_pca],
+    'AMI': [ami_pp, ami_random, ami_pca]
+})
+
+print("Сравнение всех трех подходов:")
+print(comparison_df.to_string(index=False))
+print("\n" + "="*50 + "\n")
+
+# Анализ результатов
+print("Выводы:")
+print("1. По времени выполнения:")
+print(f"   - k-means++: {kmeans_pp_time:.4f} сек")
+print(f"   - random: {kmeans_random_time:.4f} сек")
+print(f"   - PCA компоненты: {kmeans_pca_time:.4f} сек")
+
+print("\n2. По качеству кластеризации (ARI):")
+print(f"   - k-means++: {ari_pp:.4f}")
+print(f"   - random: {ari_random:.4f}")
+print(f"   - PCA компоненты: {ari_pca:.4f}")
+
+print("\n3. По качеству кластеризации (AMI):")
+print(f"   - k-means++: {ami_pp:.4f}")
+print(f"   - random: {ami_random:.4f}")
+print(f"   - PCA компоненты: {ami_pca:.4f}")
+
+print("\nОбоснование:")
+print("- k-means++ обычно показывает лучшие результаты, т.к. выбирает начальные центроиды")
+print("  далеко друг от друга, что помогает избежать локальных минимумов.")
+print("- Random инициализация может давать разные результаты при разных запусках.")
+print("- PCA компоненты как инициализация могут быть полезны, если главные компоненты")
+print("  хорошо разделяют данные, но не всегда обеспечивают оптимальную кластеризацию.")
+print("=" * 50)
