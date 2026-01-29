@@ -21,3 +21,15 @@ X_scaled = scale(digits.data)
 
 print("Данные загружены и отмасштабированы")
 print("=" * 50)
+
+# Вывод информации о данных
+print("Размерность данных (объекты x признаки):", digits.data.shape)
+print("Количество признаков:", digits.data.shape[1])
+print("Количество объектов:", digits.data.shape[0])
+
+# Количество уникальных значений в target
+unique_targets = np.unique(digits.target)
+n_clusters = len(unique_targets)
+print("Количество уникальных значений в target:", n_clusters)
+print("Уникальные значения:", unique_targets)
+print("=" * 50)
