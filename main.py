@@ -109,3 +109,46 @@ plt.show()
 
 print(f"Коэффициент силуэта для k={n_clusters}: {silhouette_scores[n_clusters-2]:.4f}")
 print("=" * 50)
+
+# Создание модели KMeans с инициализацией random
+start_time = time.time()
+
+kmeans_random = KMeans(
+    init='random',  # Случайная инициализация центроидов
+    n_clusters=n_clusters,
+    n_init=10,
+    random_state=42
+)
+
+# Обучение модели
+kmeans_random.fit(X_scaled)
+
+# Время работы
+kmeans_random_time = time.time() - start_time
+
+# Получение меток кластеров
+labels_random = kmeans_random.labels_
+
+# Вычисление метрик
+ari_random = adjusted_rand_score(digits.target, labels_random)
+ami_random = adjusted_mutual_info_score(digits.target, labels_random)
+
+print("Результаты для KMeans с init='random':")
+print(f"Время работы: {kmeans_random_time:.4f} секунд")
+print(f"Adjusted Rand Index (ARI): {ari_random:.4f}")
+print(f"Adjusted Mutual Information (AMI): {ami_random:.4f}")
+print("=" * 50)
+
+# Методы локтя и силуэта для random
+inertia_values_random = []
+silhouette_scores_random = []
+
+for k in k_range:
+    kmeans_temp = KMeans(n_clusters=k, init='random', n_init=10, random_state=42)
+    kmeans_temp.fit(X_scaled)
+    inertia_values_random.append(kmeans_temp.inertia_)
+    
+    if k < len(X_scaled):
+        cluster_labels = kmeans_temp.fit_predict(X_scaled)
+        silhouette_avg = silhouette_score(X_scaled, cluster_labels)
+        silhouette_scores_random.append(silhouette_avg)
