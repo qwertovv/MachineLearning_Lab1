@@ -62,3 +62,50 @@ print(f"Время работы: {kmeans_pp_time:.4f} секунд")
 print(f"Adjusted Rand Index (ARI): {ari_pp:.4f}")
 print(f"Adjusted Mutual Information (AMI): {ami_pp:.4f}")
 print("=" * 50)
+
+# Метод локтя для определения оптимального числа кластеров
+# (для сравнения с заданным n_clusters)
+inertia_values = []
+k_range = range(2, 20)
+
+for k in k_range:
+    kmeans_temp = KMeans(n_clusters=k, init='k-means++', n_init=10, random_state=42)
+    kmeans_temp.fit(X_scaled)
+    inertia_values.append(kmeans_temp.inertia_)
+
+# Метод силуэта
+silhouette_scores = []
+for k in k_range:
+    if k < len(X_scaled):  # Проверка, чтобы k было меньше количества объектов
+        kmeans_temp = KMeans(n_clusters=k, init='k-means++', n_init=10, random_state=42)
+        cluster_labels = kmeans_temp.fit_predict(X_scaled)
+        silhouette_avg = silhouette_score(X_scaled, cluster_labels)
+        silhouette_scores.append(silhouette_avg)
+
+# Визуализация метода локтя
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.plot(k_range, inertia_values, 'bo-')
+plt.xlabel('Количество кластеров (k)')
+plt.ylabel('Inertia (сумма квадратов расстояний)')
+plt.title('Метод локтя для KMeans (k-means++)')
+plt.axvline(x=n_clusters, color='r', linestyle='--', label=f'k={n_clusters} (кол-во классов)')
+plt.grid(True, alpha=0.3)
+plt.legend()
+
+# Визуализация метода силуэта
+plt.subplot(1, 2, 2)
+plt.plot(k_range, silhouette_scores, 'go-')
+plt.xlabel('Количество кластеров (k)')
+plt.ylabel('Средний коэффициент силуэта')
+plt.title('Метод силуэта для KMeans (k-means++)')
+plt.axvline(x=n_clusters, color='r', linestyle='--', label=f'k={n_clusters} (кол-во классов)')
+plt.grid(True, alpha=0.3)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+print(f"Коэффициент силуэта для k={n_clusters}: {silhouette_scores[n_clusters-2]:.4f}")
+print("=" * 50)
